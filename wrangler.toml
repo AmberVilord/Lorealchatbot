@@ -1,0 +1,9 @@
+name = "lorealchatbot-worker"
+main = "worker.js"
+compatibility_date = "2026-04-05"
+
+[vars]
+OPENAI_MODEL = "gpt-4.1-mini"
+MAX_CONTEXT_MESSAGES = "24"
+# Set this to the deployed site origin, for example https://your-site.pages.dev
+ALLOWED_ORIGIN = "http://127.0.0.1:8787"

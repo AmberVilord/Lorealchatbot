@@ -741,6 +741,22 @@
             userInput.disabled = isBusy;
         }
 
+        function toFriendlyServiceMessage(message) {
+            if (!message) {
+                return "Our beauty concierge is temporarily unavailable.";
+            }
+
+            if (message.includes("File not found") || message.includes("<!DOCTYPE html>") || message.includes("invalid data") || message.includes("empty response")) {
+                return "Our beauty concierge is temporarily unavailable.";
+            }
+
+            if (message.includes("OPENAI_API_KEY") || message.includes("service could not be reached") || message.includes("service unavailable")) {
+                return "Our beauty concierge is temporarily unavailable.";
+            }
+
+            return message;
+        }
+
         async function checkChatService() {
             try {
                 const response = await fetch(CHAT_SETTINGS.workerUrl, {
@@ -758,16 +774,16 @@
                 }
 
                 if (!response.ok) {
-                    const errorMessage = data?.message || data?.error || `Chat service unavailable: ${rawBody.slice(0, 120)}`;
-                    setStatus(errorMessage);
+                    const errorMessage = data?.message || data?.error || "Our beauty concierge is temporarily unavailable.";
+                    setStatus(toFriendlyServiceMessage(errorMessage));
                     return;
                 }
 
                 if (data?.message) {
-                    setStatus(data.message);
+                    setStatus(toFriendlyServiceMessage(data.message));
                 }
             } catch {
-                setStatus("The chat service could not be reached. Open the site from the deployed Worker URL.");
+                setStatus("Our beauty concierge is temporarily unavailable.");
             }
         }
 
@@ -906,8 +922,9 @@
             } catch (error) {
                 console.error("Beauty concierge request failed", error);
                 const message = error instanceof Error ? error.message : "Something went wrong. Please try again.";
-                addMessage("assistant", `I’m having trouble loading your recommendation right now. ${message}`);
-                setStatus(message);
+                const friendlyMessage = toFriendlyServiceMessage(message);
+                addMessage("assistant", `${friendlyMessage} Please try again in a moment.`);
+                setStatus(friendlyMessage);
             } finally {
                 setBusy(false);
             }

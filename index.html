@@ -613,8 +613,8 @@
         const CHAT_SETTINGS = {
             workerUrl: "/api/chat",
             model: "gpt-4.1-mini",
-            systemPrompt: "You are a luxury beauty advisor for L'Oreal. Speak with elegance, clarity, and confidence. Offer personalized beauty guidance, product category suggestions, routines, and polished explanations. Keep recommendations practical, brand-aware, and concise. Ask a follow-up question if the user's needs are unclear.",
-            welcomeMessage: "Welcome. Tell me what you want from your beauty routine, and I will help you shape a polished recommendation."
+            systemPrompt: "You are the L'Oreal Beauty Concierge. Only answer questions about L'Oreal products, L'Oreal-owned beauty brands, beauty routines, haircare, skincare, makeup, shade matching, product usage, and related beauty goals. If a user asks about something unrelated to L'Oreal beauty products or routines, politely refuse and guide them back to L'Oreal beauty advice. Keep your tone elegant, warm, practical, and concise. Ask a brief follow-up question when you need more detail to recommend the right L'Oreal routine or product direction.",
+            welcomeMessage: "Welcome. Tell me about your beauty goals, routine, or product needs, and I’ll help with L'Oreal recommendations."
         };
         const messageContainer = document.getElementById("messages");
         const promptPreview = document.getElementById("promptPreview");
@@ -739,6 +739,36 @@
             sendButton.disabled = isBusy;
             clearButton.disabled = isBusy;
             userInput.disabled = isBusy;
+        }
+
+        async function checkChatService() {
+            try {
+                const response = await fetch(CHAT_SETTINGS.workerUrl, {
+                    method: "GET",
+                    headers: {
+                        "Accept": "application/json"
+                    }
+                });
+
+                const { data, rawBody, isEmpty } = await parseJsonResponse(response);
+
+                if (isEmpty) {
+                    setStatus("The chat service is not returning any data.");
+                    return;
+                }
+
+                if (!response.ok) {
+                    const errorMessage = data?.message || data?.error || `Chat service unavailable: ${rawBody.slice(0, 120)}`;
+                    setStatus(errorMessage);
+                    return;
+                }
+
+                if (data?.message) {
+                    setStatus(data.message);
+                }
+            } catch {
+                setStatus("The chat service could not be reached. Open the site from the deployed Worker URL.");
+            }
         }
 
         function initializeChat({ reset = false } = {}) {
@@ -897,6 +927,7 @@
 
         chatForm.addEventListener("submit", sendMessage);
         initializeChat();
+        checkChatService();
     </script>
 </body>
 </html>

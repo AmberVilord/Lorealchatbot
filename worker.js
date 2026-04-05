@@ -84,7 +84,25 @@ function trimMessages(messages, maxMessages) {
 
 export default {
     async fetch(request, env) {
+        const url = new URL(request.url);
         const headers = buildCorsHeaders(request, env);
+
+        if (url.pathname !== "/api/chat") {
+            if ((request.method === "GET" || request.method === "HEAD") && env.ASSETS) {
+                return env.ASSETS.fetch(request);
+            }
+
+            return new Response("Not found.", { status: 404 });
+        }
+
+        if (request.method === "GET") {
+            return jsonResponse({
+                ok: Boolean(env.OPENAI_API_KEY),
+                service: "lorealchatbot",
+                configured: Boolean(env.OPENAI_API_KEY),
+                message: env.OPENAI_API_KEY ? "Chat service is ready." : "OPENAI_API_KEY secret is missing."
+            }, env.OPENAI_API_KEY ? 200 : 500, headers);
+        }
 
         if (request.method === "OPTIONS") {
             return new Response(null, { status: 204, headers });

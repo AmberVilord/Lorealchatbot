@@ -875,8 +875,9 @@
                 setStatus("Your recommendation is ready.");
             } catch (error) {
                 console.error("Beauty concierge request failed", error);
-                addMessage("assistant", "I’m having trouble loading your recommendation right now. Please try again in a moment.");
-                setStatus("Something went wrong. Please try again.");
+                const message = error instanceof Error ? error.message : "Something went wrong. Please try again.";
+                addMessage("assistant", `I’m having trouble loading your recommendation right now. ${message}`);
+                setStatus(message);
             } finally {
                 setBusy(false);
             }

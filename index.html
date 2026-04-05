@@ -18,6 +18,7 @@
             --mist: rgba(255, 255, 255, 0.72);
             --border: rgba(17, 17, 17, 0.12);
             --shadow: 0 24px 70px rgba(17, 17, 17, 0.16);
+            --gold-glow: 0 0 0 1px rgba(200, 169, 107, 0.22), 0 0 30px rgba(200, 169, 107, 0.18), 0 0 60px rgba(200, 169, 107, 0.08);
         }
 
         * {
@@ -102,7 +103,7 @@
         .panel {
             background: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.62));
             border: 1px solid rgba(255, 255, 255, 0.65);
-            box-shadow: var(--shadow);
+            box-shadow: var(--shadow), var(--gold-glow);
             backdrop-filter: blur(18px);
             border-radius: 28px;
             overflow: hidden;
@@ -172,6 +173,7 @@
             border-radius: 18px;
             background: rgba(255, 255, 255, 0.72);
             border: 1px solid rgba(17, 17, 17, 0.08);
+            box-shadow: inset 0 0 0 1px rgba(200, 169, 107, 0.12), 0 0 22px rgba(200, 169, 107, 0.12);
         }
 
         .metric strong {
@@ -201,6 +203,7 @@
         .chat-header {
             padding: 28px 28px 20px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: inset 0 -1px 0 rgba(200, 169, 107, 0.14), 0 18px 38px rgba(200, 169, 107, 0.08);
         }
 
         .chat-header h2 {
@@ -275,6 +278,7 @@
             border-radius: 18px;
             background: linear-gradient(135deg, rgba(200, 169, 107, 0.18), rgba(255, 255, 255, 0.08));
             border: 1px solid rgba(200, 169, 107, 0.28);
+            box-shadow: 0 0 26px rgba(200, 169, 107, 0.2);
         }
 
         .prompt-preview[hidden] {
@@ -381,6 +385,7 @@
             border-top: 1px solid rgba(255, 255, 255, 0.08);
             display: grid;
             gap: 14px;
+            box-shadow: inset 0 1px 0 rgba(200, 169, 107, 0.16), 0 -18px 38px rgba(200, 169, 107, 0.08);
         }
 
         .composer textarea {
@@ -539,64 +544,47 @@
                 <span class="wordmark-subtitle">Beauty Concierge Experience</span>
             </div>
             <div class="topbar-note">
-                A luxury beauty consultation interface with a guided system prompt, live user input, and responses safely proxied through Cloudflare Worker.
+                Personalized beauty advice, product inspiration, and routine guidance in a warm, elevated consultation experience.
             </div>
         </header>
 
         <section class="hero">
             <article class="panel hero-copy">
-                <span class="eyebrow">Elevated Client Dialogue</span>
-                <h1>Luxury consultation, tailored in real time.</h1>
+                <span class="eyebrow">Personal Beauty Guidance</span>
+                <h1>Find the routine that feels right for you.</h1>
                 <p>
-                    This single-page chatbot captures the client message, applies a persistent beauty advisor system prompt,
-                    sends the conversation through a Cloudflare Worker, and renders the assistant reply in a premium editorial interface.
+                    Share your beauty goals and get thoughtful recommendations for skincare, haircare, makeup, and daily rituals in a polished, easy-to-use space.
                 </p>
 
                 <div class="hero-metrics">
                     <div class="metric">
-                        <strong>System Prompt</strong>
-                        <span>Brand voice and consultation guardrails</span>
+                        <strong>Tailored Advice</strong>
+                        <span>Suggestions shaped around your goals and preferences</span>
                     </div>
                     <div class="metric">
-                        <strong>User Input</strong>
-                        <span>Captured in the composer and sent on demand</span>
+                        <strong>Easy Conversation</strong>
+                        <span>Ask a question naturally and continue the chat with ease</span>
                     </div>
                     <div class="metric">
-                        <strong>Worker Proxy</strong>
-                        <span>Browser requests are routed through Cloudflare</span>
+                        <strong>Thoughtful Follow-Ups</strong>
+                        <span>Your recent conversation helps guide the next reply</span>
                     </div>
                 </div>
 
                 <p class="disclaimer">
-                    The page uses a text wordmark and an inspired palette inside the browser. If you have a licensed official logo asset,
-                    replace the header wordmark with that file for exact brand compliance.
+                    Discover recommendations for glow, texture, tone, repair, hydration, and finishing touches with a refined consultation feel.
                 </p>
             </article>
 
             <section class="panel chat-shell" aria-label="Beauty chatbot interface">
                 <div class="chat-header">
                     <h2>Beauty Concierge</h2>
-                    <p>Set the Worker endpoint, tune the system prompt, then ask for product advice, routines, or shade guidance. Earlier chat details are retained for context-aware follow-ups.</p>
-
-                    <div class="config-grid">
-                        <div class="field">
-                            <label for="workerUrl">Worker Endpoint</label>
-                            <input id="workerUrl" type="url" value="/api/chat" autocomplete="off">
-                        </div>
-                        <div class="field">
-                            <label for="model">Model</label>
-                            <input id="model" type="text" value="gpt-4.1-mini" autocomplete="off">
-                        </div>
-                        <div class="field" style="grid-column: 1 / -1;">
-                            <label for="systemPrompt">System Prompt</label>
-                            <textarea id="systemPrompt">You are a luxury beauty advisor for L'Oreal. Speak with elegance, clarity, and confidence. Offer personalized beauty guidance, product category suggestions, routines, and polished explanations. Keep recommendations practical, brand-aware, and concise. Ask a follow-up question if the user's needs are unclear.</textarea>
-                        </div>
-                    </div>
+                    <p>Ask about routines, ingredients, hair goals, makeup direction, or everyday beauty questions. The conversation remembers recent details so follow-ups feel natural.</p>
                 </div>
 
                 <div class="conversation-stage">
                     <div class="prompt-preview" id="promptPreview" hidden>
-                        <span class="prompt-preview-label">Current Question</span>
+                        <span class="prompt-preview-label">You Asked</span>
                         <div class="prompt-preview-text" id="promptPreviewText"></div>
                     </div>
 
@@ -605,14 +593,14 @@
 
                 <form class="composer" id="chatForm">
                     <div class="field">
-                        <label for="userInput">Your Message</label>
-                        <textarea id="userInput" placeholder="Ask about skincare routines, hair care, shade direction, or a beauty regimen."></textarea>
+                        <label for="userInput">How Can We Help?</label>
+                        <textarea id="userInput" placeholder="Tell us what you would like help with, such as dryness, shine, texture, color care, or a full routine."></textarea>
                     </div>
                     <div class="composer-actions">
                         <div class="status" id="status">Ready.</div>
                         <div class="button-row">
-                            <button type="button" class="secondary" id="clearButton">Clear Chat</button>
-                            <button type="submit" class="primary" id="sendButton">Send via Worker</button>
+                            <button type="button" class="secondary" id="clearButton">Start Fresh</button>
+                            <button type="submit" class="primary" id="sendButton">Get My Recommendation</button>
                         </div>
                     </div>
                 </form>
@@ -622,14 +610,17 @@
 
     <script>
         const STORAGE_KEY = "loreal-beauty-concierge-state";
+        const CHAT_SETTINGS = {
+            workerUrl: "/api/chat",
+            model: "gpt-4.1-mini",
+            systemPrompt: "You are a luxury beauty advisor for L'Oreal. Speak with elegance, clarity, and confidence. Offer personalized beauty guidance, product category suggestions, routines, and polished explanations. Keep recommendations practical, brand-aware, and concise. Ask a follow-up question if the user's needs are unclear.",
+            welcomeMessage: "Welcome. Tell me what you want from your beauty routine, and I will help you shape a polished recommendation."
+        };
         const messageContainer = document.getElementById("messages");
         const promptPreview = document.getElementById("promptPreview");
         const promptPreviewText = document.getElementById("promptPreviewText");
         const chatForm = document.getElementById("chatForm");
         const userInput = document.getElementById("userInput");
-        const workerUrlInput = document.getElementById("workerUrl");
-        const systemPromptInput = document.getElementById("systemPrompt");
-        const modelInput = document.getElementById("model");
         const statusText = document.getElementById("status");
         const sendButton = document.getElementById("sendButton");
         const clearButton = document.getElementById("clearButton");
@@ -638,9 +629,6 @@
 
         function saveState() {
             const state = {
-                workerUrl: workerUrlInput.value.trim(),
-                model: modelInput.value.trim(),
-                systemPrompt: systemPromptInput.value,
                 conversation
             };
 
@@ -664,7 +652,9 @@
             messageContainer.innerHTML = "";
 
             for (const message of conversation) {
-                addMessage(message.role, message.content);
+                if (message.role !== "system") {
+                    addMessage(message.role, message.content);
+                }
             }
         }
 
@@ -682,22 +672,19 @@
             const hasAssistantMessage = conversation.some((message) => message.role === "assistant");
 
             if (!hasAssistantMessage) {
-                const welcomeMessage = "Welcome. Share your beauty goal, routine, or product question and I will tailor a polished recommendation.";
+                const welcomeMessage = CHAT_SETTINGS.welcomeMessage;
                 conversation.push({ role: "assistant", content: welcomeMessage });
             }
         }
 
         function createFreshConversation() {
-            const systemPrompt = systemPromptInput.value.trim();
             const nextConversation = [];
 
-            if (systemPrompt) {
-                nextConversation.push({ role: "system", content: systemPrompt });
-            }
+            nextConversation.push({ role: "system", content: CHAT_SETTINGS.systemPrompt });
 
             nextConversation.push({
                 role: "assistant",
-                content: "Welcome. Share your beauty goal, routine, or product question and I will tailor a polished recommendation."
+                content: CHAT_SETTINGS.welcomeMessage
             });
 
             replaceConversation(nextConversation);
@@ -706,17 +693,11 @@
             saveState();
         }
 
-        function syncSystemPrompt() {
-            const systemPrompt = systemPromptInput.value.trim();
-
-            if (systemPrompt) {
-                if (conversation[0]?.role === "system") {
-                    conversation[0].content = systemPrompt;
-                } else {
-                    conversation.unshift({ role: "system", content: systemPrompt });
-                }
-            } else if (conversation[0]?.role === "system") {
-                conversation.shift();
+        function ensureSystemMessage() {
+            if (conversation[0]?.role === "system") {
+                conversation[0].content = CHAT_SETTINGS.systemPrompt;
+            } else {
+                conversation.unshift({ role: "system", content: CHAT_SETTINGS.systemPrompt });
             }
         }
 
@@ -726,14 +707,14 @@
 
             const avatar = document.createElement("div");
             avatar.className = "message-avatar";
-            avatar.textContent = role === "assistant" ? "AI" : role === "system" ? "SP" : "YO";
+            avatar.textContent = role === "assistant" ? "LO" : "YOU";
 
             const article = document.createElement("article");
             article.className = `message message-${role}`;
 
             const meta = document.createElement("span");
             meta.className = "message-meta";
-            meta.textContent = role === "assistant" ? "Beauty Concierge" : role === "system" ? "System Prompt" : "Client";
+            meta.textContent = role === "assistant" ? "L'Oreal Beauty Concierge" : "You";
 
             const body = document.createElement("div");
             body.textContent = content;
@@ -763,18 +744,6 @@
         function initializeChat({ reset = false } = {}) {
             const savedState = reset ? null : loadState();
 
-            if (savedState?.workerUrl) {
-                workerUrlInput.value = savedState.workerUrl;
-            }
-
-            if (savedState?.model) {
-                modelInput.value = savedState.model;
-            }
-
-            if (typeof savedState?.systemPrompt === "string") {
-                systemPromptInput.value = savedState.systemPrompt;
-            }
-
             if (!reset && Array.isArray(savedState?.conversation) && savedState.conversation.length) {
                 const validConversation = savedState.conversation.filter((message) => {
                     return message && typeof message.role === "string" && typeof message.content === "string";
@@ -782,7 +751,7 @@
 
                 if (validConversation.length) {
                     replaceConversation(validConversation);
-                    syncSystemPrompt();
+                    ensureSystemMessage();
                     ensureWelcomeMessage();
                     renderConversation();
                     saveState();
@@ -815,25 +784,42 @@
                 }
             }
 
-            return "No text response was returned by the model.";
+            return "I wasn't able to shape a recommendation just yet. Please try again.";
+        }
+
+        async function parseJsonResponse(response) {
+            const rawBody = await response.text();
+
+            if (!rawBody.trim()) {
+                return {
+                    data: null,
+                    rawBody,
+                    isEmpty: true
+                };
+            }
+
+            try {
+                return {
+                    data: JSON.parse(rawBody),
+                    rawBody,
+                    isEmpty: false
+                };
+            } catch {
+                return {
+                    data: null,
+                    rawBody,
+                    isEmpty: false
+                };
+            }
         }
 
         async function sendMessage(event) {
             event.preventDefault();
 
-            const workerUrl = workerUrlInput.value.trim() || "/api/chat";
             const prompt = userInput.value.trim();
-            const model = modelInput.value.trim() || "gpt-4.1-mini";
-            const systemPrompt = systemPromptInput.value.trim();
-
-            if (!workerUrl) {
-                setStatus("Enter the Cloudflare Worker endpoint before sending.");
-                workerUrlInput.focus();
-                return;
-            }
 
             if (!prompt) {
-                setStatus("Enter a client message to continue.");
+                setStatus("Share what you would like help with.");
                 userInput.focus();
                 return;
             }
@@ -842,8 +828,8 @@
                 createFreshConversation();
             }
 
-            if (conversation[0]?.role !== "system" || conversation[0]?.content !== systemPrompt) {
-                syncSystemPrompt();
+            if (conversation[0]?.role !== "system" || conversation[0]?.content !== CHAT_SETTINGS.systemPrompt) {
+                ensureSystemMessage();
                 renderConversation();
             }
 
@@ -852,35 +838,45 @@
             setPromptPreview(prompt);
             saveState();
             userInput.value = "";
-            setStatus("Sending request through Cloudflare Worker...");
+            setStatus("Curating your recommendation...");
             setBusy(true);
 
             try {
-                const response = await fetch(workerUrl, {
+                const response = await fetch(CHAT_SETTINGS.workerUrl, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        model,
+                        model: CHAT_SETTINGS.model,
                         messages: conversation
                     })
                 });
 
-                const data = await response.json();
+                const { data, rawBody, isEmpty } = await parseJsonResponse(response);
+
+                if (isEmpty) {
+                    throw new Error("The recommendation service returned an empty response.");
+                }
+
                 if (!response.ok) {
-                    const errorMessage = data.error?.message || "The request failed.";
+                    const errorMessage = data?.error || data?.message || "The request failed.";
                     throw new Error(errorMessage);
+                }
+
+                if (!data) {
+                    throw new Error(`The recommendation service returned invalid data: ${rawBody.slice(0, 160)}`);
                 }
 
                 const assistantText = extractText(data);
                 conversation.push({ role: "assistant", content: assistantText });
                 addMessage("assistant", assistantText);
                 saveState();
-                setStatus("Response received.");
+                setStatus("Your recommendation is ready.");
             } catch (error) {
-                addMessage("assistant", `Request error: ${error.message}`);
-                setStatus("Worker request failed.");
+                console.error("Beauty concierge request failed", error);
+                addMessage("assistant", "I’m having trouble loading your recommendation right now. Please try again in a moment.");
+                setStatus("Something went wrong. Please try again.");
             } finally {
                 setBusy(false);
             }
@@ -889,16 +885,9 @@
         clearButton.addEventListener("click", () => {
             localStorage.removeItem(STORAGE_KEY);
             initializeChat({ reset: true });
-            setStatus("Chat cleared.");
+            setStatus("You can start a new conversation.");
         });
 
-        systemPromptInput.addEventListener("change", () => {
-            createFreshConversation();
-            setStatus("System prompt updated and conversation reset.");
-        });
-
-        workerUrlInput.addEventListener("change", saveState);
-        modelInput.addEventListener("change", saveState);
         userInput.addEventListener("input", () => {
             if (userInput.value.trim()) {
                 clearPromptPreview();

@@ -13,6 +13,32 @@ function jsonResponse(body, status = 200, extraHeaders = {}) {
     });
 }
 
+async function parseJsonBody(response) {
+    const rawBody = await response.text();
+
+    if (!rawBody.trim()) {
+        return {
+            data: null,
+            rawBody,
+            isEmpty: true
+        };
+    }
+
+    try {
+        return {
+            data: JSON.parse(rawBody),
+            rawBody,
+            isEmpty: false
+        };
+    } catch {
+        return {
+            data: null,
+            rawBody,
+            isEmpty: false
+        };
+    }
+}
+
 function buildCorsHeaders(request, env) {
     const origin = request.headers.get("Origin") || "";
     const allowedOrigin = env.ALLOWED_ORIGIN || "";
@@ -104,25 +130,37 @@ export default {
 
         const trimmedMessages = trimMessages(messages, maxMessages);
 
-        const openAIResponse = await fetch("https://api.openai.com/v1/responses", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${env.OPENAI_API_KEY}`
-            },
-            body: JSON.stringify({
-                model,
-                input: toResponsesInput(trimmedMessages)
-            })
-        });
+        try {
+            const openAIResponse = await fetch("https://api.openai.com/v1/responses", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${env.OPENAI_API_KEY}`
+                },
+                body: JSON.stringify({
+                    model,
+                    input: toResponsesInput(trimmedMessages)
+                })
+            });
 
-        const data = await openAIResponse.json();
+            const { data, rawBody, isEmpty } = await parseJsonBody(openAIResponse);
 
-        if (!openAIResponse.ok) {
-            const message = data?.error?.message || "OpenAI request failed.";
-            return jsonResponse({ error: message }, openAIResponse.status, headers);
+            if (isEmpty) {
+                return jsonResponse({ error: "OpenAI returned an empty response body." }, 502, headers);
+            }
+
+            if (!openAIResponse.ok) {
+                const message = data?.error?.message || data?.error || "OpenAI request failed.";
+                return jsonResponse({ error: message }, openAIResponse.status, headers);
+            }
+
+            if (!data) {
+                return jsonResponse({ error: `OpenAI returned invalid JSON: ${rawBody.slice(0, 200)}` }, 502, headers);
+            }
+
+            return jsonResponse(data, 200, headers);
+        } catch (error) {
+            return jsonResponse({ error: error instanceof Error ? error.message : "Unexpected worker failure." }, 502, headers);
         }
-
-        return jsonResponse(data, 200, headers);
     }
 };

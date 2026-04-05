@@ -263,34 +263,108 @@
             transform: translateY(-1px);
         }
 
+        .conversation-stage {
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .prompt-preview {
+            margin: 20px 28px 0;
+            padding: 14px 16px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(200, 169, 107, 0.18), rgba(255, 255, 255, 0.08));
+            border: 1px solid rgba(200, 169, 107, 0.28);
+        }
+
+        .prompt-preview[hidden] {
+            display: none;
+        }
+
+        .prompt-preview-label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.62);
+        }
+
+        .prompt-preview-text {
+            color: rgba(255, 255, 255, 0.92);
+            line-height: 1.6;
+        }
+
         .messages {
             padding: 24px 28px;
             overflow: auto;
             display: flex;
             flex-direction: column;
             gap: 16px;
+            min-height: 0;
+        }
+
+        .message-row {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
+        .message-row-user {
+            justify-content: flex-end;
+        }
+
+        .message-row-assistant,
+        .message-row-system {
+            justify-content: flex-start;
+        }
+
+        .message-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            flex: 0 0 34px;
+        }
+
+        .message-row-user .message-avatar {
+            background: rgba(200, 169, 107, 0.92);
+            color: var(--ink);
+        }
+
+        .message-row-assistant .message-avatar,
+        .message-row-system .message-avatar {
+            background: rgba(255, 255, 255, 0.12);
+            color: rgba(255, 255, 255, 0.88);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .message {
-            max-width: 88%;
+            max-width: min(88%, 560px);
             padding: 16px 18px;
-            border-radius: 18px;
+            border-radius: 22px;
             line-height: 1.7;
             white-space: pre-wrap;
             animation: rise 280ms ease;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.14);
         }
 
         .message-user {
-            align-self: flex-end;
             background: linear-gradient(135deg, rgba(200, 169, 107, 0.92), rgba(165, 127, 58, 0.92));
             color: var(--ink);
+            border-bottom-right-radius: 8px;
         }
 
         .message-assistant,
         .message-system {
-            align-self: flex-start;
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.08);
+            border-bottom-left-radius: 8px;
         }
 
         .message-meta {
@@ -449,6 +523,11 @@
             .message {
                 max-width: 100%;
             }
+
+            .prompt-preview {
+                margin-left: 20px;
+                margin-right: 20px;
+            }
         }
     </style>
 </head>
@@ -515,7 +594,14 @@
                     </div>
                 </div>
 
-                <div class="messages" id="messages" aria-live="polite"></div>
+                <div class="conversation-stage">
+                    <div class="prompt-preview" id="promptPreview" hidden>
+                        <span class="prompt-preview-label">Current Question</span>
+                        <div class="prompt-preview-text" id="promptPreviewText"></div>
+                    </div>
+
+                    <div class="messages" id="messages" aria-live="polite"></div>
+                </div>
 
                 <form class="composer" id="chatForm">
                     <div class="field">
@@ -537,6 +623,8 @@
     <script>
         const STORAGE_KEY = "loreal-beauty-concierge-state";
         const messageContainer = document.getElementById("messages");
+        const promptPreview = document.getElementById("promptPreview");
+        const promptPreviewText = document.getElementById("promptPreviewText");
         const chatForm = document.getElementById("chatForm");
         const userInput = document.getElementById("userInput");
         const workerUrlInput = document.getElementById("workerUrl");
@@ -580,6 +668,16 @@
             }
         }
 
+        function setPromptPreview(content) {
+            promptPreviewText.textContent = content;
+            promptPreview.hidden = false;
+        }
+
+        function clearPromptPreview() {
+            promptPreviewText.textContent = "";
+            promptPreview.hidden = true;
+        }
+
         function ensureWelcomeMessage() {
             const hasAssistantMessage = conversation.some((message) => message.role === "assistant");
 
@@ -604,6 +702,7 @@
 
             replaceConversation(nextConversation);
             renderConversation();
+            clearPromptPreview();
             saveState();
         }
 
@@ -622,6 +721,13 @@
         }
 
         function addMessage(role, content) {
+            const row = document.createElement("div");
+            row.className = `message-row message-row-${role}`;
+
+            const avatar = document.createElement("div");
+            avatar.className = "message-avatar";
+            avatar.textContent = role === "assistant" ? "AI" : role === "system" ? "SP" : "YO";
+
             const article = document.createElement("article");
             article.className = `message message-${role}`;
 
@@ -633,7 +739,14 @@
             body.textContent = content;
 
             article.append(meta, body);
-            messageContainer.appendChild(article);
+
+            if (role === "user") {
+                row.append(article, avatar);
+            } else {
+                row.append(avatar, article);
+            }
+
+            messageContainer.appendChild(row);
             messageContainer.scrollTop = messageContainer.scrollHeight;
         }
 
@@ -736,6 +849,7 @@
 
             conversation.push({ role: "user", content: prompt });
             addMessage("user", prompt);
+            setPromptPreview(prompt);
             saveState();
             userInput.value = "";
             setStatus("Sending request through Cloudflare Worker...");
@@ -785,6 +899,11 @@
 
         workerUrlInput.addEventListener("change", saveState);
         modelInput.addEventListener("change", saveState);
+        userInput.addEventListener("input", () => {
+            if (userInput.value.trim()) {
+                clearPromptPreview();
+            }
+        });
 
         chatForm.addEventListener("submit", sendMessage);
         initializeChat();

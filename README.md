@@ -16,6 +16,20 @@ L'Oreal-inspired beauty chatbot UI with requests routed through Cloudflare Worke
 4. Optionally update `ALLOWED_ORIGIN` in `wrangler.toml` to your site URL if you want to restrict requests to one origin
 5. Deploy: `wrangler deploy`
 
+## Local Secret Setup
+
+For local development, keep the API key out of source control and load it from a `.dev.vars` file that Wrangler reads automatically:
+
+```dotenv
+OPENAI_API_KEY=your_api_key_here
+```
+
+The included `.gitignore` excludes `.dev.vars` and `.wrangler/` so secrets and local state do not get committed.
+
+For deployed environments, continue using `wrangler secret put OPENAI_API_KEY` instead of storing the key in `index.html`, `worker.js`, or `wrangler.toml`.
+
+If an API key has already been pasted into chat, docs, or source history, rotate it in the OpenAI dashboard before using it in production.
+
 ## Connect the Front-End
 
 The site posts to `/api/chat` on the same Worker origin. Deploy the Worker and open its URL to load both the page and the chat endpoint from one place.
